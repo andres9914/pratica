@@ -5,7 +5,7 @@ include ('config/crud.php');
 ?>
 <!DOCTYPE html>
 <html lang="es">
-
+<!--menu o ventana principoal-->
 <head>
     <?php include ('partials/head.php');  ?>
 </head>
@@ -28,10 +28,10 @@ include ('config/crud.php');
 
                     <option value="">Todas</option>
                     <?php
-                    $consult = mysqli_query($connect,"SELECT * FROM pais");
+                    $consult = mysqli_query(conectar(),"SELECT * FROM pais");
                         while ($fila = $consult->fetch_array()){
                 ?>
-                    <option value="<?php echo $fila['ID']; ?>"> <?php echo $fila['ID']." ".$fila['nombre']; ?> </option>
+                    <option value="<?php echo $fila['id']; ?>"> <?php echo $fila['nombre']; ?> </option>
                     <?php } 
                         
                     ?>
@@ -55,7 +55,7 @@ include ('config/crud.php');
 ///// ejecucion de filtro //////
         if (isset($_GET['filtro'])){
             if(!empty($_GET['filtro'])){
-                $where = " WHERE oficinas_ID ='".$filtro."' ";
+                $where = " WHERE oficinas_id ='".$filtro."' ";
             }   
         }else{
             $where = "";
@@ -76,23 +76,25 @@ include ('config/crud.php');
                 </thead>
                 <tbody>
                     <?php 
-    $querydatos = mysqli_query($connect,"SELECT * FROM usuarios $where");
+    $querydatos = mysqli_query(conectar(),"SELECT * FROM usuarios $where");
 
-    while ($value = $querydatos->fetch_assoc()) { 
-    $fecha = substr($value['fecha-n'],0,-6);
+    while ($value = $querydatos->fetch_assoc()) {
+    //uso de una funcion de php para extraer la posicion solo del año capturado 
+    $fecha = substr($value['fecha_n'],0,-6);
     $año = 2020;
+    //resta del año actual con el año de nacimiento
     $edad = $año - $fecha;
 ?>
                     <tr>
-                        <td><?php  echo $value['ID']; ?></td>
+                        <td><?php  echo $value['id']; ?></td>
                         <td><?php  echo $value['primer_nombre']; ?></td>
                         <td><?php  echo $value['segundo_nombre']; ?></td>
                         <td><?php  echo $edad; ?></td>
                         <td><?php  echo $value['email']; ?></td>
-                        <td><?php  echo $value['oficinas_ID']; ?></td>
-                        <td><?php  echo $value['permisos_ID']; ?></td>
+                        <td><?php  echo $value['oficinas_id']; ?></td>
+                        <td><?php  echo $value['permisos_id']; ?></td>
                     </tr>
-                    <input type="hidden" name="ID" value="<?php echo $value['ID'] ?>">
+                    <input type="hidden" name="id" value="<?php echo $value['id'] ?>">
                     <?php
      }    
             ?>
@@ -122,14 +124,14 @@ include ('config/crud.php');
                     <select name="" id="selectsuspender" class="form-control form-control-sm ">
                         <option value="">Usuarios:</option>
                         <?php
-                        $sqlusuario = mysqli_query($connect,"SELECT * FROM usuarios");
+                        $sqlusuario = mysqli_query(conectar(),"SELECT * FROM usuarios");
                         while($valor = $sqlusuario->fetch_array()){   
                     ?>
-                        <option value="<?php echo $valor['ID'] ?>">
-                            <?php echo $valor['ID']." ".$valor['primer_nombre']." ".$valor['segundo_nombre'] ?></option>
+                        <option value="<?php echo $valor['id'] ?>">
+                            <?php echo $valor['id']." ".$valor['primer_nombre']." ".$valor['segundo_nombre'] ?></option>
                         <?php }  ?>
                     </select> <br>
-                    <a href="main.php?cuenta=<?php echo $valor['ID'] ?>">
+                    <a href="main.php?cuenta=<?php echo $valor['id'] ?>">
                         <button onclick="return suspender()" class="btn btn-outline-primary">Confirmar</button>
                     </a>
                 </form>
@@ -145,14 +147,14 @@ include ('config/crud.php');
                     <select name="" id="selectactivar" class="form-control form-control-sm ">
                         <option value="">Usuarios:</option>
                         <?php
-                        $sqlusuario = mysqli_query($connect,"SELECT * FROM usuarios");
+                        $sqlusuario = mysqli_query(conectar(),"SELECT * FROM usuarios");
                         while($valor = $sqlusuario->fetch_array()){   
                     ?>
-                        <option value="<?php echo $valor['ID'] ?>">
-                            <?php echo $valor['ID']." ".$valor['primer_nombre']." ".$valor['segundo_nombre'] ?></option>
+                        <option value="<?php echo $valor['id'] ?>">
+                            <?php echo $valor['primer_nombre']." ".$valor['segundo_nombre'] ?></option>
                         <?php }  ?>
                     </select> <br>
-                    <a href="main.php?cuenta=<?php echo $valor['ID'] ?>">
+                    <a href="main.php?cuenta=<?php echo $valor['id'] ?>">
                         <button onclick="return activar()" class="btn btn-outline-primary">Confirmar</button>
                     </a>
                 </form>
