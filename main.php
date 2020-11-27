@@ -1,6 +1,6 @@
 <?php 
 include ('config/crud.php');
-//session_start();
+session_start();
 //error_reporting(0);
 ?>
 <!DOCTYPE html>
@@ -28,7 +28,7 @@ include ('config/crud.php');
 
                     <option value="">Todas</option>
                     <?php
-                    $consult = mysqli_query(conectar(),"SELECT * FROM pais");
+                    $consult = mysqli_query(conectar(),"SELECT o.id, o.nombre  FROM oficinas o");
                         while ($fila = $consult->fetch_array()){
                 ?>
                     <option value="<?php echo $fila['id']; ?>"> <?php echo $fila['nombre']; ?> </option>
@@ -37,7 +37,7 @@ include ('config/crud.php');
                     ?>
 
                 </select> <br>
-                <a href="main.php?"><button class="btn btn-outline-info" type="submit">Filtrar</button></a>
+                <a><button class="btn btn-outline-info" type="submit">Filtrar</button></a>
             </form>
         </div>
         </div>
@@ -50,20 +50,68 @@ include ('config/crud.php');
                 <?php 
                 
 ////// variables de consulta /////
-    $where = null;
-    $filtro = $_GET['filtro'] ;
+$where = null;
+$filtro = $_GET['filtro'] ;
+$where = "u.oficinas_id ='".$filtro."' ";
 ///// ejecucion de filtro //////
         if (isset($_GET['filtro'])){
             if(!empty($_GET['filtro'])){
-                $where = " WHERE oficinas_id ='".$filtro."' ";
-            }   
-        }else{
-            $where = "";
-        }
-
-?>
+                ?>
                 <thead>
 
+        <tr>
+            <th>Id</th>
+            <th>Primer nombre</th>
+            <th>Segundo nombre</th>
+            <th>Edad</th>
+            <th>Email</th>
+            <th>Oficina</th>
+            <th>Rol</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php 
+
+$querydatos = mysqli_query(conectar(),"SELECT u.id, u.primer_nombre, u.segundo_nombre, u.email, u.fecha_n, o.nombre as 'oficina', p.tipo_rol as 'permisos' FROM
+    (SELECT id, oficinas_id, permisos_id, primer_nombre, segundo_nombre, email, fecha_n FROM usuarios) u, 
+    (SELECT id, nombre, contacto FROM oficinas) o,
+    (SELECT id, tipo_rol FROM permisos) p
+    WHERE $where AND u.oficinas_id = o.id AND u.permisos_id = p.id 
+");
+
+while ($value = $querydatos->fetch_array()) {
+//uso de una funcion de php para extraer la posicion solo del año capturado 
+$fecha = substr($value['fecha_n'],0,-6);
+$año = 2020;
+//resta del año actual con el año de nacimiento
+$edad = $año - $fecha;
+?>
+        <tr>
+            <td><?php  echo $value['id']; ?></td>
+            <td><?php  echo $value['primer_nombre']; ?></td>
+            <td><?php  echo $value['segundo_nombre']; ?></td>
+            <td><?php  echo $edad; ?></td>
+            <td><?php  echo $value['email']; ?></td>
+            <td><?php  echo $value['oficina']; ?></td>
+            <td><?php  echo $value['permisos']; ?></td>
+        </tr>
+        <input type="hidden" name="id" value="<?php echo $value['id'] ?>">
+        <?php
+}    
+?>
+
+    </tbody>
+    </table>
+    </div>
+    <!--fin tabla datos-->
+    <?php
+            }   
+        }else if (isset($_GET['filtro'])){
+            if (!empty($_GET['filtro']) == null or "all" ){
+
+            
+    ?>
+        <thead>
                     <tr>
                         <th>Id</th>
                         <th>Primer nombre</th>
@@ -76,9 +124,15 @@ include ('config/crud.php');
                 </thead>
                 <tbody>
                     <?php 
-    $querydatos = mysqli_query(conectar(),"SELECT * FROM usuarios $where");
+                    
+    $querydatos = mysqli_query(conectar(),"SELECT u.id, u.primer_nombre, u.segundo_nombre, u.email, u.fecha_n, o.nombre as 'oficina', p.tipo_rol as 'permisos' FROM
+        (SELECT id, oficinas_id, permisos_id, primer_nombre, segundo_nombre, email, fecha_n FROM usuarios) u, 
+        (SELECT id, nombre, contacto FROM oficinas) o,
+        (SELECT id, tipo_rol FROM permisos) p
+        WHERE u.oficinas_id = o.id AND u.permisos_id = p.id 
+    ");
 
-    while ($value = $querydatos->fetch_assoc()) {
+    while ($value = $querydatos->fetch_array()) {
     //uso de una funcion de php para extraer la posicion solo del año capturado 
     $fecha = substr($value['fecha_n'],0,-6);
     $año = 2020;
@@ -91,8 +145,8 @@ include ('config/crud.php');
                         <td><?php  echo $value['segundo_nombre']; ?></td>
                         <td><?php  echo $edad; ?></td>
                         <td><?php  echo $value['email']; ?></td>
-                        <td><?php  echo $value['oficinas_id']; ?></td>
-                        <td><?php  echo $value['permisos_id']; ?></td>
+                        <td><?php  echo $value['oficina']; ?></td>
+                        <td><?php  echo $value['permisos']; ?></td>
                     </tr>
                     <input type="hidden" name="id" value="<?php echo $value['id'] ?>">
                     <?php
@@ -103,6 +157,14 @@ include ('config/crud.php');
             </table>
         </div>
         <!--fin tabla datos-->
+
+
+<?php 
+         }
+    }
+
+?>
+                
     </section>
     <div class="form-group">
         <a href="main.php?suspender=suspender"><input type="submit" class="btn btn-danger" value="Suspender Cuenta"></a>
